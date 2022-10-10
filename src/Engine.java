@@ -53,7 +53,8 @@ public class Engine {
 	static boolean 不给红点=true;
 	public static long accBegin=0;
 	public static boolean ifAcc=false;
-	public int score_=0;
+	public static int score_=0;
+	public static boolean accAtBeginning=false;
 
 	public static void createUI() {
 		while(!initialized) {
@@ -124,9 +125,16 @@ public class Engine {
 			f.addWindowFocusListener(null);
 			if (!gameOver&&!gameCease && !gameCeaseForced) {
 				 if(ifAcc) {
+					 if(score>0) {
 					 duringAcc();
 					 bg.layOutScore();
-					 score--;
+					 if(accAtBeginning) {
+						 score--;
+					 }
+					 }
+					 else {
+						 endAcc();
+					 }
 				 }
 				//Check whether apple is eaten
 				 if(apple.eaten) {//此句块需置于检测状态模块的前面
@@ -303,19 +311,19 @@ public class Engine {
 	}
 	
 	public static void beginAcc() {
+		accAtBeginning=true;
 		ifAcc=true;
 		accBegin=System.currentTimeMillis();
 			gap=(int)(Settings.move_fps/Settings.accRate);
+			score_=score;
 	}
 
 	public static void duringAcc() {
+		accAtBeginning=false;
 		if(score>0) {
-			if((int)(System.currentTimeMillis()-accBegin)>Settings.secondPerAcc) {
-				accBegin=System.currentTimeMillis();
-				System.out.println(accBegin);
-			score--;
+			score=score_-(int)((System.currentTimeMillis()-accBegin)/Settings.secondPerAcc);
+			//	System.out.println(accBegin);
 			bg.layOutScore();
-		}
 		}
 		else {
 			endAcc();
