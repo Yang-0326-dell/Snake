@@ -48,9 +48,12 @@ public class Engine {
 	static int gap = Settings.move_fps;
 	static Apple apple = new Apple();
 	static Boom boom=new Boom();
-	static int boomLeftSecond=-1;
+	static int boomLeftSecond=0;
 	static boolean gameOver=false;
 	static boolean 不给红点=true;
+	public static long accBegin=0;
+	public static boolean ifAcc=false;
+	public int score_=0;
 
 	public static void createUI() {
 		while(!initialized) {
@@ -63,13 +66,11 @@ public class Engine {
 		}
 		f1.setVisible(false);
 		Settings.update();
+		gap=Settings.move_fps;
 		
 		snake=new Snake();
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setSize(Settings.facewidth, Settings.faceheight+70);
-		f.addKeyListener(new CheckState());
-		f.addWindowStateListener(new CheckWindow());
-		f.addWindowListener(new CheckWindow());
 		f.setLayout(null);
 		f.setVisible(true);
 
@@ -90,6 +91,7 @@ public class Engine {
 		Font font=new Font("黑体",Font.PLAIN,10);
 		properties.setSize(Settings.facewidth, 20);
 		properties.setLocation(0,0);
+		properties.setFont(font);
 		j2.add(properties);
 		
 		snake.initialize(Snake.default_mode);
@@ -97,15 +99,19 @@ public class Engine {
 //		f.add(properties);
 		f.add(j1);
 		f.add(j2);
+		j1.setVisible(true);
+		j2.setVisible(true);
 		apple.initialize();
 		boom.initializeBoom();
 		apple.generateApple();
 		bg.paintApple(apple);
 		// f.add(scoreOutput);
 		f.setFocusable(true);
-		f.addKeyListener(new CheckState());
 		f.setVisible(true);
-
+		f.addKeyListener(new CheckState());
+		f.addWindowFocusListener(null);
+		f.addWindowStateListener(new CheckWindow());
+		f.addWindowListener(new CheckWindow());
 		int i = 0;
 		while (true) {
 			try {
@@ -114,7 +120,14 @@ public class Engine {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			//System.out.println(gap);
+			f.addWindowFocusListener(null);
 			if (!gameOver&&!gameCease && !gameCeaseForced) {
+				 if(ifAcc) {
+					 duringAcc();
+					 bg.layOutScore();
+					 score--;
+				 }
 				//Check whether apple is eaten
 				 if(apple.eaten) {//此句块需置于检测状态模块的前面
 					 不给红点=false;
@@ -123,11 +136,10 @@ public class Engine {
 				}
 				bg.paintApple(apple);
 				//Decide whether red spot is eaten
-				if(boomLeftSecond==0) {
+				if(boomLeftSecond<0) {
 					boom.appear=false;
-					boomLeftSecond=-1;
+					boomLeftSecond=0;
 					bg.displayLeftSecond();
-					不给红点=true;
 				}
 				if(score%6==0&&score>0&&boom.appear==false&&!不给红点) {
 					boom.appear=true;
@@ -135,7 +147,7 @@ public class Engine {
 					boom.generateApple();
 				}
 				if(boom.appear) {
-					boomLeftSecond=Settings.secondPerBoom-(int) ((System.currentTimeMillis()-boom.millisecond)/1000);
+					boomLeftSecond=Settings.secondPerBoom-(int) ((System.currentTimeMillis()-boom.millisecond)/(Settings.secondPerScore*1000));
 					bg.displayLeftSecond();
 					bg.paintBoom(boom);
 				}
@@ -150,7 +162,7 @@ public class Engine {
 					boom.eaten = true;
 					boom.appear=false;
 					score+=boomLeftSecond*3;
-					boomLeftSecond=-1;
+					boomLeftSecond=0;
 					bg.displayLeftSecond();
 					bg.layOutScore();
 					不给红点=true;
@@ -214,7 +226,7 @@ public class Engine {
 		
 		//输入大小
 		jp2.setLocation(10,100);
-		jp2.setSize(300,50);
+		jp2.setSize(800,50);
 		jp2.setLayout(null);
 		JLabel jl2=new JLabel("地图大小:");
 		jl2.setFont(font);
@@ -289,9 +301,36 @@ public class Engine {
 			}
 		}
 	}
+	
+	public static void beginAcc() {
+		ifAcc=true;
+		accBegin=System.currentTimeMillis();
+			gap=(int)(Settings.move_fps/Settings.accRate);
+	}
+
+	public static void duringAcc() {
+		if(score>0) {
+			if((int)(System.currentTimeMillis()-accBegin)>Settings.secondPerAcc) {
+				accBegin=System.currentTimeMillis();
+				System.out.println(accBegin);
+			score--;
+			bg.layOutScore();
+		}
+		}
+		else {
+			endAcc();
+		}
+	}
+	
+	public static void endAcc() {
+		ifAcc=false;
+		//score-=(System.currentTimeMillis()-accBegin)/Settings.secondPerAcc;
+		accBegin=0;
+		gap=Settings.move_fps;
+	}
 
 	public static void cease() {
-		gap = 0;
+		gap = 10;
 		gameCease = true;
 	}
 
@@ -302,7 +341,7 @@ public class Engine {
 	}
 
 	public static void forceCease() {
-		gap = 0;
+		gap = 10;
 		gameCeaseForced = true;
 	}
 

@@ -26,6 +26,10 @@ public class Settings {
 	public static int appleheight=10;
 	public static int boomPerScore=3;
 	public static int secondPerBoom=6;
+	public static float secondPerScore=(float) 1.5;
+
+	public static int secondPerAcc=1000;
+	public static float accRate=(float) 2.0;
 	
 	public String[] username;
 	

@@ -51,6 +51,10 @@ public class Apple extends Canvas{
 	public void generateApple() {
 		eaten = false;
 		Random r = new Random();
+		if(Settings.blockx * Settings.blocky - Engine.snake.length-1==0) {
+			Engine.gameOver();
+			return;
+		}
 		int seed = r.nextInt(0, Settings.blockx * Settings.blocky - Engine.snake.length-1);
 		int it = 0;
 		boolean[] map = new boolean[Settings.blockx * Settings.blocky];
@@ -63,7 +67,7 @@ public class Apple extends Canvas{
 					continue;
 				} else {
 					if (it == seed) {
-						position[0] = i;
+						position[0] = i; 
 						position[1] = j;
 					}
 				}

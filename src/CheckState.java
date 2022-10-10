@@ -50,6 +50,9 @@ public class CheckState implements KeyListener {
 		} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 			Engine.forceContinue();
 		}
+		else if(e.getKeyCode()==KeyEvent.VK_CONTROL) {
+			Engine.beginAcc();
+		}
 		Engine.changeDirection(dir);
 
 		// System.out.println("ONCE");
@@ -58,6 +61,9 @@ public class CheckState implements KeyListener {
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
+		if(e.getKeyCode()==KeyEvent.VK_CONTROL) {
+			Engine.endAcc();
+		}
 	}
 
 }

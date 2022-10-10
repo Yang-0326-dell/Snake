@@ -1,5 +1,6 @@
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 
 import javax.swing.*;
 
@@ -29,17 +30,18 @@ public class Snake {
 
 	public void initialize(int mode) {
 		setbodyshape(mode);
+		Random r=new Random();
+		int seed=r.nextInt(0,Settings.blocky);
 
 		for (int i = 0; i < length; i++) {
 			snake_body[i] = new Part();
 			snake_body[i].serial = i;
 			snake_body[i].px = i;
-			snake_body[i].py = Settings.blocky / 2;
+			snake_body[i].py = seed;
 			snake_body[i].direction = Part.left;
 		}
 		snake_body[0].hort = Part.head;
-		snake_body[1].hort = Part.tail;
-		snake_body[2].hort = Part.tail;
+		
 		snake_body[2].end = true;
 
 	}
